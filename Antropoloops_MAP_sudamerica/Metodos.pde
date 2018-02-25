@@ -9,7 +9,7 @@ boolean soloState() {
 
 
       soloState.put(Integer.toString(i), (Integer)soloClip.get("solo"));
-      if (soloState.containsValue(1)==true) {
+      if (soloState.containsValue(1) == true) {
       }
     }
   }

@@ -1,11 +1,11 @@
   //Todos los Eventos que escuchamos de Ableton
 
 void oscEvent(OscMessage theOscMessage) {
-  String path=theOscMessage.addrPattern();
+  String path = theOscMessage.addrPattern();
 
   //Nos da la info de todos los clips que hay (track, clip, name, color) 
   if (path.equals("/live/name/clip")) {
-    println("+++++++++++++Oyendo "+path+"++++++++++++++++");
+    println("+++++++++++++Oyendo " + path + "++++++++++++++++");
     timerPuntoRojo.start(1);
     statePuntoRojo = 1;
 
@@ -18,37 +18,36 @@ void oscEvent(OscMessage theOscMessage) {
 
     if ((Integer)theOscMessage.arguments()[0]==0) {
       infoLoop.put("colorH", random(105, 120));
-    } 
-    else if ((Integer)theOscMessage.arguments()[0]==1) {
+    } else if ((Integer)theOscMessage.arguments()[0]==1) {
       infoLoop.put("colorH", random(145, 160));
-    }
-    else if ((Integer)theOscMessage.arguments()[0]==2) {
+    } else if ((Integer)theOscMessage.arguments()[0]==2) {
       infoLoop.put("colorH", random(300, 315));
-    }
-    else if ((Integer)theOscMessage.arguments()[0]==3) {
+    } else if ((Integer)theOscMessage.arguments()[0]==3) {
       infoLoop.put("colorH", random(330, 345));
-    }
-    else if ((Integer)theOscMessage.arguments()[0]==4) {
+    } else if ((Integer)theOscMessage.arguments()[0]==4) {
       infoLoop.put("colorH", random(190, 205));
-    }
-    else if ((Integer)theOscMessage.arguments()[0]==5) {
+    } else if ((Integer)theOscMessage.arguments()[0]==5) {
       infoLoop.put("colorH", random(210, 225));
-    }
-    else if ((Integer)theOscMessage.arguments()[0]==6) {
+    } else if ((Integer)theOscMessage.arguments()[0]==6) {
       infoLoop.put("colorH", random(25, 40));
-    }
-    else if ((Integer)theOscMessage.arguments()[0]==7) {
+    } else if ((Integer)theOscMessage.arguments()[0]==7) {
       infoLoop.put("colorH", random(50, 65));
     }
 
-    miAntropoloops.put(infoLoop.get("trackLoop")+"-"+infoLoop.get("clipLoop"), infoLoop); 
-    println(infoLoop.get("trackLoop")+"-"+infoLoop.get("clipLoop"), "/", infoLoop.get("nombreLoop"));
+    miAntropoloops.put(infoLoop.get("trackLoop") + "-" + infoLoop.get("clipLoop"), infoLoop); 
+    println(infoLoop.get("trackLoop") + "-" + infoLoop.get("clipLoop"), "/", infoLoop.get("nombreLoop"));
 
-    loopsIndexed.add(infoLoop.get("trackLoop")+"-"+infoLoop.get("clipLoop"));
+    loopsIndexed.add(infoLoop.get("trackLoop") + "-" + infoLoop.get("clipLoop"));
 
-    PImage unaImagen = loadImage("../0_covers/"+(String)infoLoop.get("nombreLoop")+".jpg");
-
-    misImagenes.put(infoLoop.get("trackLoop")+"-"+infoLoop.get("clipLoop"), unaImagen);
+    PImage unaImagen = loadImage("../0_covers/" + (String)infoLoop.get("nombreLoop") + ".jpg");
+    misImagenes.put(infoLoop.get("trackLoop") + "-" + infoLoop.get("clipLoop"), unaImagen);
+  }
+  
+  // Me avisa cuando live/name/clip ha terminado de lanzar mensajes
+  // Es un path que he añadido yo a LiveOSC
+  if (path.equals("/live/name/clip/done")) {
+   println("***********DONE************");
+   //println(theOscMessage.arguments()[0]);
   }
 
   //Aquí escuchamos si un clip cambia de estado (no clip (0), has clip (1), playing (2), triggered (3))
@@ -59,7 +58,7 @@ void oscEvent(OscMessage theOscMessage) {
     int state = (Integer)theOscMessage.get(2).intValue();
     println("Mensaje recibido /live/clip/info. ClaveTrack: " + claveTrack + ", claveClip: " + claveClip + ", state: " + state);
     
-    miAntropoloops.get(claveTrack+"-"+claveClip).put("state", state);
+    miAntropoloops.get(claveTrack + "-" + claveClip).put("state", state);
 
     if (state == 2) {
       ultimoLoop = miAntropoloops.get(claveTrack+"-"+claveClip);
@@ -67,26 +66,22 @@ void oscEvent(OscMessage theOscMessage) {
       dibujaOnda = true;
       ultLoopParado = false;
         
-     float dvolu = (Float)ultimoLoop.get("volume")*100;
-      if (dvolu<=40) {
-        d = dvolu*3/4;
-      } 
-      else if (40<dvolu && dvolu<=70) {
-        d = (4*dvolu-70)/3;
+      float dvolu = (Float)ultimoLoop.get("volume") * 100;
+      if (dvolu <= 40) {
+        d = dvolu * 3 / 4;
+      } else if (40 < dvolu && dvolu <= 70) {
+        d = (4 * dvolu - 70) / 3;
+      } else if (dvolu > 70 && dvolu <= 80) {
+        d= 5 * dvolu - 280;
+      } else if(dvolu > 80){
+        d = 120;
       }
-      else if (dvolu>70 && dvolu<=80) {
-        d= 5*dvolu-280;
-      }else if(dvolu > 80){
-      d = 120;
+    }
+    if (state == 1) {
+      if((Integer)ultimoLoop.get("trackLoop")==claveTrack && (Integer)ultimoLoop.get("clipLoop")==claveClip){
+      ultLoopParado = true;
       }
-      
-      
-     }
-      if (state == 1) {
-        if((Integer)ultimoLoop.get("trackLoop")==claveTrack && (Integer)ultimoLoop.get("clipLoop")==claveClip){
-        ultLoopParado = true;
-        }
-      }
+    }
   }
 
   if (path.equals("/live/play")) {
@@ -96,15 +91,14 @@ void oscEvent(OscMessage theOscMessage) {
   if (path.equals("/live/clip/loopend")) {
     timerPuntoVerde.start(1);
     statePuntoVerde = 1;
-
     ct1 = ct1 + 1;
-    String idTrackClip=loopsIndexed.get(ct1);
+    String idTrackClip = loopsIndexed.get(ct1);
     miAntropoloops.get(idTrackClip).put("loopend", theOscMessage.get(0).floatValue());
   }
 
   if (path.equals("/live/volume")) {
-    for (int i=0; i<loopsIndexed.size(); i++) {
-      String claveClip=loopsIndexed.get(i);
+    for (int i = 0; i < loopsIndexed.size(); i++) {
+      String claveClip = loopsIndexed.get(i);
       int[] a = int(split(claveClip, '-'));
       if (a[0] == theOscMessage.get(0).intValue()) {
         miAntropoloops.get(claveClip).put("volume", theOscMessage.get(1).floatValue());
@@ -114,7 +108,7 @@ void oscEvent(OscMessage theOscMessage) {
 
   if (path.equals("/live/solo")) {
     for (int i=0; i < loopsIndexed.size(); i++) {
-      String claveClip=loopsIndexed.get(i);
+      String claveClip = loopsIndexed.get(i);
       int[] a = int(split(claveClip, '-'));
       if (a[0] == theOscMessage.get(0).intValue()) {
         miAntropoloops.get(claveClip).put("solo", theOscMessage.get(1).intValue());
@@ -123,8 +117,8 @@ void oscEvent(OscMessage theOscMessage) {
   }
 
   if (path.equals("/live/mute")) {
-    for (int i=0; i < loopsIndexed.size(); i++) {
-      String claveClip=loopsIndexed.get(i);
+    for (int i = 0; i < loopsIndexed.size(); i++) {
+      String claveClip = loopsIndexed.get(i);
       int[] a = int(split(claveClip, '-'));
       if (a[0] == theOscMessage.get(0).intValue()) {
         miAntropoloops.get(claveClip).put("mute", theOscMessage.get(1).intValue());
